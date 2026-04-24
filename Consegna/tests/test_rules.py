@@ -11,7 +11,7 @@ Per lanciarli: pytest tests/test_rules.py
 import pytest
 
 try:
-    from rules import is_even, is_vowel, compute_expected_answer
+    from brain_shift.rules import is_even, is_vowel, compute_expected_answer
 except ImportError:
     is_even = None
     is_vowel = None

@@ -21,7 +21,7 @@ Per lanciarli: pytest tests/test_scoring_base.py
 import pytest
 
 try:
-    from scoring import apply_answer
+    from brain_shift.scoring import apply_answer
 except ImportError:
     apply_answer = None
 
