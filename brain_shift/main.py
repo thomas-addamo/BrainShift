@@ -21,8 +21,10 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
+            running = False
 
-    screen.fill((255, 255, 255))  # Bianco
+    screen.fill((255, 255, 255))
     pygame.display.flip()
     clock.tick(60)
 pygame.quit()
