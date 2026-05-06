@@ -11,9 +11,10 @@
 
 import pygame
 import random
+import time
 from generator import generate_trial
 from scoring import apply_answer
-from ui import draw_card, draw_timer, draw_results
+from ui import draw_card, draw_timer, draw_results, draw_feedback_icon
 import config
 
 
@@ -32,10 +33,24 @@ def reset_game():
     trial = generate_trial(rng)
     start_time = pygame.time.get_ticks()
     state = "PLAYING"
+    feedback_until = 0
+    feedback_is_correct = None
+    next_trial = None
 
-    return rng, score, correct_answers, wrong_answers, trial, start_time, state
+    return (
+        rng,
+        score,
+        correct_answers,
+        wrong_answers,
+        trial,
+        start_time,
+        state,
+        feedback_until,
+        feedback_is_correct,
+        next_trial,
+    )
 
-rng, score, correct_answers, wrong_answers, trial, start_time, state = reset_game()
+rng, score, correct_answers, wrong_answers, trial, start_time, state, feedback_until, feedback_is_correct, next_trial = reset_game()
 
 running = True
 while running:
@@ -46,8 +61,12 @@ while running:
             if event.key == pygame.K_ESCAPE:
                 running = False
             elif event.key == pygame.K_r and state == "RESULTS":
-                rng, score, correct_answers, wrong_answers, trial, start_time, state = reset_game()
-            elif event.key in (pygame.K_LEFT, pygame.K_RIGHT) and state == "PLAYING":
+                rng, score, correct_answers, wrong_answers, trial, start_time, state, feedback_until, feedback_is_correct, next_trial = reset_game()
+            elif (
+                event.key in (pygame.K_LEFT, pygame.K_RIGHT)
+                and state == "PLAYING"
+                and time.time() >= feedback_until
+            ):
                 user_answer = (event.key == pygame.K_LEFT)
                 trial.user_answer = user_answer
                 is_correct = (trial.expected_answer == user_answer)
@@ -58,18 +77,35 @@ while running:
                     score = apply_answer(score, False)
                     wrong_answers += 1
                 print(f"Score: {score}, Correct: {correct_answers}, Wrong: {wrong_answers}")
-                trial = generate_trial(rng)
+                feedback_until = time.time() + config.FEEDBACK_DURATION
+                feedback_is_correct = is_correct
+                next_trial = generate_trial(rng)
 
     elapsed = (pygame.time.get_ticks() - start_time) / 1000
     if state == "PLAYING" and elapsed >= config.COUNTDOWN:
         state = "RESULTS"
+
+    if state == "PLAYING" and next_trial is not None and time.time() >= feedback_until:
+        trial = next_trial
+        next_trial = None
+        feedback_is_correct = None
 
     screen.fill((255, 255, 255))
 
     if state == "PLAYING":
         remaining_time = max(0, int(config.COUNTDOWN - elapsed))
         draw_timer(screen, remaining_time, config)
-        draw_card(screen, trial, config)
+        if time.time() < feedback_until:
+            if feedback_is_correct:
+                card_color = config.CORRECT_COLOR
+            else:
+                card_color = config.WRONG_COLOR
+        else:
+            card_color = config.CARD_COLOR
+
+        draw_card(screen, trial, config, card_color)
+        if time.time() < feedback_until:
+            draw_feedback_icon(screen, trial, feedback_is_correct, config)
     elif state == "RESULTS":
         draw_results(screen, score, correct_answers, wrong_answers, config)
 

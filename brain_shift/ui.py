@@ -2,7 +2,8 @@ import pygame
 from models import Trial
 import config
 
-def draw_card(surface, trial: Trial, config):
+
+def get_card_rect(trial: Trial, config):
     card_width = config.CARD_WIDTH
     card_height = config.CARD_HEIGHT
     x = (config.SCREEN_WIDTH - card_width) // 2
@@ -12,8 +13,14 @@ def draw_card(surface, trial: Trial, config):
     else:
         y = config.BOTTOM_Y
 
-    card_rect = pygame.Rect(x, y, card_width, card_height)
-    pygame.draw.rect(surface, config.CARD_COLOR, card_rect)
+    return pygame.Rect(x, y, card_width, card_height)
+
+
+def draw_card(surface, trial: Trial, config, card_color=None):
+    card_rect = get_card_rect(trial, config)
+    color = card_color or config.CARD_COLOR
+
+    pygame.draw.rect(surface, color, card_rect)
 
     font = pygame.font.Font(config.FONT_NAME, config.FONT_SIZE)
     text = f"{trial.letter}{trial.number}"
@@ -21,6 +28,37 @@ def draw_card(surface, trial: Trial, config):
     text_rect = text_surface.get_rect(center=card_rect.center)
 
     surface.blit(text_surface, text_rect)
+
+
+def draw_feedback_icon(surface, trial: Trial, is_correct, config):
+    card_rect = get_card_rect(trial, config)
+    center_x = card_rect.right + 55
+    center_y = card_rect.centery
+
+    if is_correct:
+        color = config.CORRECT_COLOR
+        points = [
+            (center_x - 22, center_y),
+            (center_x - 8, center_y + 18),
+            (center_x + 25, center_y - 24),
+        ]
+        pygame.draw.lines(surface, color, False, points, 8)
+    else:
+        color = config.WRONG_COLOR
+        pygame.draw.line(
+            surface,
+            color,
+            (center_x - 22, center_y - 22),
+            (center_x + 22, center_y + 22),
+            8,
+        )
+        pygame.draw.line(
+            surface,
+            color,
+            (center_x + 22, center_y - 22),
+            (center_x - 22, center_y + 22),
+            8,
+        )
 
 
 def draw_timer(surface, remaining_time, config):
