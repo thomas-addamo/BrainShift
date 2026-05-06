@@ -1,0 +1,1 @@
+# modifica al metodo di feedback visivo della risposta all'input utente, abbiamo messo una spunta accanto alla crta e abbiamo messo un'attesa di 0.35 secondi prima dellaparizione della prossima carta
