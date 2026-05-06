@@ -14,7 +14,15 @@ import random
 import time
 from generator import generate_trial
 from scoring import apply_answer
-from ui import draw_card, draw_timer, draw_results, draw_feedback_icon
+from ui import (
+    draw_answer_buttons,
+    draw_card,
+    draw_feedback_icon,
+    draw_results,
+    draw_timer,
+    draw_trial_prompt,
+    get_answer_from_click,
+)
 import config
 
 
@@ -26,7 +34,7 @@ pygame.display.set_caption("Brain Shift")
 clock = pygame.time.Clock()
 
 def reset_game():
-    rng = random.Random(42)
+    rng = random.Random()
     score = 0
     correct_answers = 0
     wrong_answers = 0
@@ -52,6 +60,25 @@ def reset_game():
 
 rng, score, correct_answers, wrong_answers, trial, start_time, state, feedback_until, feedback_is_correct, next_trial = reset_game()
 
+
+def submit_answer(user_answer, trial, score, correct_answers, wrong_answers, rng):
+    trial.user_answer = user_answer
+    is_correct = trial.expected_answer == user_answer
+
+    if is_correct:
+        score = apply_answer(score, True)
+        correct_answers += 1
+    else:
+        score = apply_answer(score, False)
+        wrong_answers += 1
+
+    print(f"Score: {score}, Correct: {correct_answers}, Wrong: {wrong_answers}")
+    feedback_until = time.time() + config.FEEDBACK_DURATION
+    next_trial = generate_trial(rng)
+
+    return score, correct_answers, wrong_answers, feedback_until, is_correct, next_trial
+
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -68,18 +95,29 @@ while running:
                 and time.time() >= feedback_until
             ):
                 user_answer = (event.key == pygame.K_LEFT)
-                trial.user_answer = user_answer
-                is_correct = (trial.expected_answer == user_answer)
-                if is_correct:
-                    score = apply_answer(score, True)
-                    correct_answers += 1
-                else:
-                    score = apply_answer(score, False)
-                    wrong_answers += 1
-                print(f"Score: {score}, Correct: {correct_answers}, Wrong: {wrong_answers}")
-                feedback_until = time.time() + config.FEEDBACK_DURATION
-                feedback_is_correct = is_correct
-                next_trial = generate_trial(rng)
+                score, correct_answers, wrong_answers, feedback_until, feedback_is_correct, next_trial = submit_answer(
+                    user_answer,
+                    trial,
+                    score,
+                    correct_answers,
+                    wrong_answers,
+                    rng,
+                )
+        elif (
+            event.type == pygame.MOUSEBUTTONDOWN
+            and state == "PLAYING"
+            and time.time() >= feedback_until
+        ):
+            user_answer = get_answer_from_click(event.pos, config)
+            if user_answer is not None:
+                score, correct_answers, wrong_answers, feedback_until, feedback_is_correct, next_trial = submit_answer(
+                    user_answer,
+                    trial,
+                    score,
+                    correct_answers,
+                    wrong_answers,
+                    rng,
+                )
 
     elapsed = (pygame.time.get_ticks() - start_time) / 1000
     if state == "PLAYING" and elapsed >= config.COUNTDOWN:
@@ -95,6 +133,7 @@ while running:
     if state == "PLAYING":
         remaining_time = max(0, int(config.COUNTDOWN - elapsed))
         draw_timer(screen, remaining_time, config)
+        draw_trial_prompt(screen, trial, config)
         if time.time() < feedback_until:
             if feedback_is_correct:
                 card_color = config.CORRECT_COLOR
@@ -105,7 +144,8 @@ while running:
 
         draw_card(screen, trial, config, card_color)
         if time.time() < feedback_until:
-            draw_feedback_icon(screen, trial, feedback_is_correct, config)
+            draw_feedback_icon(screen, feedback_is_correct, config)
+        draw_answer_buttons(screen, config)
     elif state == "RESULTS":
         draw_results(screen, score, correct_answers, wrong_answers, config)
 
