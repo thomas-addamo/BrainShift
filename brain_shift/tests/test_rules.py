@@ -1,13 +1,3 @@
-"""
-Test per il modulo rules.py.
-
-Questi test verificano che le tre funzioni pure del modulo rules
-(is_even, is_vowel, compute_expected_answer) si comportino come la
-specifica richiede.
-
-Per lanciarli: pytest tests/test_rules.py
-"""
-
 import pytest
 
 try:
@@ -31,8 +21,6 @@ def test_structure_check():
     )
 
 
-# ---------- is_even ----------
-
 def test_is_even_with_even_number():
     """Un numero pari deve dare True."""
     assert is_even(4) is True
@@ -53,8 +41,6 @@ def test_is_even_with_two():
     """2 è pari (limite inferiore dei pari nel range di gioco)."""
     assert is_even(2) is True
 
-
-# ---------- is_vowel ----------
 
 def test_is_vowel_with_vowel_A():
     """A è una vocale."""
@@ -86,8 +72,6 @@ def test_is_vowel_some_consonants():
     for c in "BCDFGHJKLMNPQRSTVWXYZ":
         assert is_vowel(c) is False, f"is_vowel('{c}') dovrebbe essere False"
 
-
-# ---------- compute_expected_answer ----------
 
 def test_expected_top_even_number():
     """Carta TOP con numero pari: risposta attesa True."""

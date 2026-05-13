@@ -1,23 +1,3 @@
-"""
-Test per il modulo scoring.py (versione base lineare).
-
-La firma attesa della funzione è:
-
-    def apply_answer(score: int, is_correct: bool) -> int:
-        ...
-
-Comportamento richiesto per la versione base:
-- risposta corretta: score viene incrementato di 10
-- risposta errata: score resta uguale OPPURE viene decrementato di 5
-  (potete scegliere, ma dovete essere coerenti)
-
-I test accettano entrambe le policy per la risposta errata: verificano
-solo che il punteggio sia uguale o inferiore, e mai superiore, a quello
-precedente.
-
-Per lanciarli: pytest tests/test_scoring_base.py
-"""
-
 import pytest
 
 try:
