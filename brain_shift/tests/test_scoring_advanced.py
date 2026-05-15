@@ -106,7 +106,7 @@ def test_sequence_from_specification():
     assert score == 300 and multiplier == 2 and meter == 1   # +100 perché mult=2
 
     score, multiplier, meter = apply_answer_advanced(score, multiplier, meter, False)
-    assert score == 300 and multiplier == 2 and meter == 0   # meter azzera, mult resta
+    assert score == 295 and multiplier == 2 and meter == 0   # -5 punti, meter azzera, mult resta
 
 
 def test_final_bonus_with_multiplier_1():

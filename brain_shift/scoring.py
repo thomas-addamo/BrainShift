@@ -16,6 +16,7 @@ def apply_answer_advanced(score: int, multiplier: int, meter: int, is_correct: b
             multiplier = min(multiplier + 1, 10)
             meter = 0
     else:
+        score = max(0, score - 5)
         if meter > 0:
             meter = 0
         else:
