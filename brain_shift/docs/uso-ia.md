@@ -70,3 +70,14 @@
  
 **Cosa abbiamo fatto:**
 - [x] Preso solo l'idea e riscritto
+
+---
+
+### 7. Struttura dei test e implementazione totale
+  
+**Cosa abbiamo chiesto:** Di creare tutti i test che abbiamo implementato totalmente.
+ 
+**Cosa ci ha scritto:** Il codice per tutti i test.
+ 
+**Cosa abbiamo fatto:**
+- [x] Quello che lui ha detto.
